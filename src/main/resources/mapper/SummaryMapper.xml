@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.SummaryMapper">
+
+    <select id="listSummary" parameterType="com.wsh.asset.comms.SummaryParams" resultType="Map">
+        SELECT
+        asset_storagedate,
+        COUNT(*),
+        (SELECT COUNT(*) FROM asset a1 WHERE a.asset_storagedate=a1.asset_storagedate AND a1.asset_usestatus =1   ) status_1,
+        (SELECT COUNT(*) FROM asset a2 WHERE a.asset_storagedate=a2.asset_storagedate AND a2.asset_usestatus =2   ) status_2,
+        (SELECT COUNT(*) FROM asset a3 WHERE a.asset_storagedate=a3.asset_storagedate AND a3.asset_usestatus =3   ) status_3,
+        (SELECT COUNT(*) FROM asset a4 WHERE a.asset_storagedate=a4.asset_storagedate AND a4.asset_usestatus =4   ) status_4,
+        (SELECT COUNT(*) FROM asset a5 WHERE a.asset_storagedate=a5.asset_storagedate AND a5.asset_usestatus =5   ) status_5,
+        (SELECT COUNT(*) FROM asset a6 WHERE a.asset_storagedate=a6.asset_storagedate AND a6.asset_usestatus =6   ) status_6,
+        (SELECT COUNT(*) FROM asset a7 WHERE a.asset_storagedate=a7.asset_storagedate AND a7.asset_usestatus =7   ) status_7
+        FROM
+            `asset` a
+        GROUP BY
+            a.asset_storagedate
+        ORDER BY
+            a.asset_storagedate
+    </select>
+
+    <select id="listClassifyRadio" parameterType="com.wsh.asset.comms.SummaryParams" resultType="Map">
+        SELECT
+        t1.assetclassifyid,
+        t1.assetclassify_name,
+        t1.num,
+        CONCAT(ROUND(t1.num/t2.total*100,2),"%") AS ratio
+        FROM
+        (
+        SELECT
+        a1.asset_classifyid AS assetclassifyid,
+        a2.assetclassify_name AS assetclassify_name,
+        COUNT(*) AS num
+        FROM
+        asset a1
+        LEFT JOIN assetclassify a2 ON a1.asset_classifyid = a2.assetclassify_id
+        GROUP BY
+        a1.asset_classifyid
+        ) t1,
+        (
+        SELECT
+        COUNT(*) AS total
+        FROM
+        asset
+        ) t2
+        <include refid="Base_where_List"/>
+    </select>
+
+    <select id="listBrandCount" parameterType="com.wsh.asset.comms.SummaryParams" resultType="Map">
+        SELECT
+          t1.assetid,
+          t1.assetbrand,
+          t1.num,
+          CONCAT(ROUND(t1.num/t2.total*100,2),"%") AS ratio
+        FROM
+        (
+        SELECT
+          a1.asset_id AS assetid,
+          a1.asset_brand AS assetbrand,
+        COUNT(*) AS num
+        FROM
+          asset a1
+        GROUP BY
+          a1.asset_name
+        ) t1,
+        (
+        SELECT
+          COUNT(*) AS total
+        FROM
+          asset
+        ) t2
+        <include refid="Base_where_List"/>
+    </select>
+
+    <select id="listUseStatus" parameterType="com.wsh.asset.comms.SummaryParams" resultType="Map">
+        SELECT
+        COUNT(*)
+        FROM asset a1
+        WHERE a1.asset_usestatus = 1
+        OR a1.asset_usestatus = 4
+        OR a1.asset_usestatus = 6
+        <include refid="Base_where_List"/>
+    </select>
+
+    <select id="listOtherStatus" parameterType="com.wsh.asset.comms.SummaryParams" resultType="Map">
+        COUNT(*)
+        FROM asset a1
+        WHERE a1.asset_usestatus = 2
+        OR a1.asset_usestatus = 5
+        OR a1.asset_usestatus = 8
+        <include refid="Base_where_List"/>
+    </select>
+
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="assetId !=null and assetId.length > 0">
+            AND a1.asset_id IN
+            <foreach collection="assetId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产name -->
+        <if test="assetName != null">
+            AND a1.asset_name = #{assetName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 资产编号 -->
+        <if test="assetNumber != null">
+            AND a1.asset_number = #{assetNumber,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 部门id -->
+        <if test="assetClassifyid != null">
+            AND a1.asset_classifyid = #{assetClassifyid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 存放地 -->
+        <if test="assetStorageplace != null">
+            AND a1.asset_storageplace = #{assetStorageplace,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 入库时间 -->
+        <if test="assetStoragedate != null">
+            AND a1.asset_storagedate = #{assetStoragedate,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 渠道 -->
+        <if test="assetChannel != null">
+            AND a1.asset_channel = #{assetChannel,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 品牌 -->
+        <if test="assetNumber != null">
+            AND a1.asset_brand = #{assetNumber,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 厂家 -->
+        <if test="assetManufactor != null">
+            AND a1.asset_manufactor = #{assetManufactor,jdbcType=VARCHAR}
+        </if>
+
+        <!-- SN号 -->
+        <if test="assetSNnumber != null">
+            AND a1.asset_SNnumber = #{assetSNnumber,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+</mapper>

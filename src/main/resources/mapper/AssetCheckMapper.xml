@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetCheckMapper">
+
+    <select id="listCheckAsset" parameterType="com.wsh.asset.comms.AssetCheckParams" resultType="Map">
+      SELECT
+        c1.check_id as checkId,
+        c1.check_number as checkNumber,
+        c1.check_assetid as checkAssetid,
+          a1.asset_number as assetNumber,
+          a1.asset_name as assetName,
+          a1.asset_classifyid as assetClassifyId,
+            a2.assetclassify_name as assetClassifyName,
+          a1.asset_storagedate as assetStorageDate,
+          a1.asset_brand as assetBrand,
+          a1.asset_user_id as assetUserId,
+          a1.asset_storageplace as assetStoragePlace,
+          a1.asset_productiondate as assetProductionDate,
+        c1.check_publishuserid as checkPublishuserId,
+          u1.user_mobile as publishUserMobile,
+          u1.user_sex as publishUserSex,
+          u1.user_name as publishUserName,
+          u1.user_department_id as publishUserDepartmentId,
+            d2.department_name as publishUserDepartmentName,
+        c1.check_publishdate as checkPublishDate,
+        c1.check_allfinishdate as checkAllFinishdate,
+        c1.check_planstartdate as checkPlanStartDate,
+        c1.check_allstartdate as checkAllStartDate,
+        c1.check_singlefinishdate as checkSingleFinishDate,
+        c1.check_checkuserid as checkCheckUserId,
+          u2.user_mobile as checkCheckMobile,
+          u2.user_sex as checkCheckSex,
+          u2.user_name as checkCheckName,
+          u2.user_department_id as checkCheckDepartmentId,
+            d3.department_name as userDepartmentName,
+        c1.check_result as checkResult,
+        c1.check_resultremark as checkResultRemark,
+        c1.check_picture as checkPicture,
+        c1.check_userid as checkUserId,
+          u3.user_mobile as checkUserMobile,
+          u3.user_sex as checkUserSex,
+          u3.user_name as checkUserName,
+          u3.user_department_id as checkUserDepartmentId,
+            d4.department_name as checkUserDepartmentName,
+        c1.check_departmentid as checkDepartmentId,
+          d1.department_name as checkDepartmentName,
+        c1.check_storageplace as checkStoragePlace,
+        c1.check_enabledate as checkEnableDate
+      FROM
+        `check` c1
+      <!-- 左联表的顺序有影响 -->
+      LEFT JOIN `asset` a1 ON c1.check_assetid=a1.asset_id
+      LEFT JOIN  assetclassify  a2 on a1.asset_classifyid=a2.assetclassify_id
+      LEFT JOIN  department d1 ON c1.check_departmentid=d1.department_id
+      LEFT JOIN `user` u1 ON c1.check_publishuserid=u1.user_id
+      LEFT JOIN `user` u2 ON c1.check_userid=u2.user_id
+      LEFT JOIN `user` u3 ON c1.check_checkuserid=u3.user_id
+      LEFT JOIN  department d2 ON u1.user_department_id=d2.department_id
+      LEFT JOIN  department d3 ON u2.user_department_id=d3.department_id
+      LEFT JOIN  department d4 ON u3.user_department_id=d4.department_id
+      <include refid="Base_where_List"/>
+     </select>
+
+    <insert id="addCheckAsset" parameterType="com.wsh.asset.comms.AssetCheckParams">
+      INSERT INTO
+      `check`
+      (check_number,
+      check_assetid,
+      check_checkstatus,
+      check_publishuserid,
+      check_publishdate,
+      check_allfinishdate,
+      check_planstartdate,
+      check_allstartdate,
+      check_singlefinishdate,
+      check_checkuserid,
+      check_result,
+      check_resultremark,
+      check_picture,
+      check_remark,
+      check_userid,
+      check_departmentid,
+      check_storageplace,
+      check_enabledate)
+      VALUES
+      (#{checkNumber},
+      #{checkAssetid},
+      #{checkCheckstatus},
+      #{checkPublishuserid},
+      #{checkPublishdate},
+      #{checkAllfinishdate},
+      #{checkPlanstartdate},
+      #{checkAllstartdate},
+      #{checkSinglefinishdate},
+      #{checkCheckuserid},
+      #{checkResult},
+      #{checkResultremark},
+      #{checkPicture},
+      #{checkRemark},
+      #{checkUserid},
+      #{checkDepartmentid},
+      #{checkStorageplace},
+      #{checkEnabledate})
+    </insert>
+
+    <update id="updateCheckAsset" parameterType="com.wsh.asset.comms.AssetCheckParams">
+      UPDATE `check`
+        <set>
+            <if test="checkNumber != null">check_number=#{checkNumber},</if>
+            <if test="checkAssetid != null">check_assetid=#{checkAssetid},</if>
+            <if test="checkCheckstatus != null">check_checkstatus=#{checkCheckstatus},</if>
+            <if test="checkPublishuserid != null">check_publishuserid=#{checkPublishuserid},</if>
+            <if test="checkPublishdate != null">check_publishdate=#{checkPublishdate},</if>
+            <if test="checkAllfinishdate != null">check_allfinishdate=#{checkAllfinishdate},</if>
+            <if test="checkPlanstartdate != null">check_planstartdate=#{checkPlanstartdate},</if>
+            <if test="checkAllstartdate != null">check_allstartdate=#{checkAllstartdate},</if>
+            <if test="checkSinglefinishdate != null">check_singlefinishdate=#{checkSinglefinishdate},</if>
+            <if test="checkCheckuserid != null">check_checkuserid=#{checkCheckuserid},</if>
+            <if test="checkResult != null">check_result=#{checkResult},</if>
+            <if test="checkResultremark != null">check_resultremark=#{checkResultremark},</if>
+            <if test="checkPicture != null">check_picture=#{checkPicture},</if>
+            <if test="checkUserid != null">check_userid=#{checkUserid},</if>
+            <if test="checkDepartmentid != null">check_departmentid=#{checkDepartmentid},</if>
+            <if test="checkStorageplace != null">check_storageplace=#{checkStorageplace},</if>
+            <if test="checkEnabledate != null">check_enabledate=#{checkEnabledate},</if>
+            <if test="checkStatus != null">check_status=#{checkStatus}</if>
+        </set>
+        WHERE
+        <if test="checkId !=null and checkId.length > 0">
+            check_id IN
+            <foreach collection="checkId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteCheckAsset">
+        DELETE FROM
+        `check`
+        WHERE
+        <if test="checkId !=null and checkId.length > 0">
+            check_id IN
+            <foreach collection="checkId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="checkId !=null and assetClassifyId.length > 0">
+            AND c1.assetcheck_id IN
+            <foreach collection="checkId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产盘点Id -->
+        <if test="checkAssetid != null">
+            AND c1.assetcheck_assetid = #{checkAssetid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 盘点发布人：-->
+        <if test="checkPublishuserid != null">
+            AND c1.check_publishuserid = #{checkPublishuserid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 盘点发布时间：-->
+        <if test="checkPublishdate != null">
+            AND c1.check_publishdate = #{checkPublishdate,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 盘点人id：-->
+        <if test="checkCheckuserid != null">
+            AND c1.check_checkuserid = #{checkCheckuserid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 资产领用人id：-->
+        <if test="checkUserid != null">
+            AND c1.check_userid = #{checkUserid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 领用地点 -->
+        <if test="checkStorageplace != null">
+            AND c1.check_storageplace = #{checkStorageplace,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>

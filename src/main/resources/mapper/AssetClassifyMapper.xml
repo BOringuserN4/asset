@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetClassifyMapper">
+
+
+    <select id="listAssetClassify" parameterType="com.wsh.asset.comms.Params" resultType="Map">
+      SELECT
+        a1.assetclassify_id as assetClassifyId,
+        a1.assetclassify_name as assetClassifyName,
+        a1.assetclassify_parentid as assetClassifyParentid,
+          a2.assetclassify_name as parentAssetClassifyName,
+        a1.assetclassify_remark as assetClassifyRemark
+      FROM
+        assetclassify a1
+        LEFT JOIN assetclassify a2 ON a1.assetclassify_parentid=a2.assetclassify_id
+      WHERE a1.assetclassify_status = 0
+      <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addAssetClassify" parameterType="com.wsh.asset.comms.AssetClassifyParams">
+       INSERT INTO
+        assetclassify
+        (assetclassify_name,
+        assetclassify_parentid,
+        assetclassify_discribe,
+        assetclassify_remark)
+		VALUES
+		(#{assetClassifyName},
+		#{assetClassifyParentid},
+		#{assetClassifyDiscribe},
+		#{assetClassifyRemark})
+    </insert>
+
+    <update id="updateAssetClassify" parameterType="com.wsh.asset.comms.AssetClassifyParams">
+        UPDATE assetclassify
+          <set>
+              <if test="assetClassifyName != null">assetclassify_name=#{assetClassifyName},</if>
+              <if test="assetClassifyParentid != null">assetclassify_parentid=#{assetClassifyParentid},</if>
+              <if test="assetClassifyDiscribe != null">assetclassify_discribe=#{assetClassifyDiscribe},</if>
+              <if test="assetClassifyRemark != null">assetclassify_remark=#{assetClassifyRemark}</if>
+          </set>
+          WHERE
+            <if test="assetClassifyId != null and assetClassifyId.length > 0">
+                assetclassify_id IN
+                <foreach collection="assetClassifyId" item = "item" index = "index"
+                         open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+    </update>
+
+    <delete id="deleteAssetClassify">
+		DELETE FROM
+		assetclassify
+		WHERE
+        <if test="assetClassifyId !=null and assetClassifyId.length > 0">
+            assetclassify_id in
+            <foreach collection="assetClassifyId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+	</delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="assetClassifyId !=null and assetClassifyId.length > 0">
+            AND a1.assetclassify_id IN
+            <foreach collection="assetClassifyId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产分类name -->
+        <if test="assetClassifyName != null">
+        AND a1.assetclassify_name = #{assetClassifyName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 资产分类父类id：： -->
+        <if test="assetClassifyParentid != null">
+        AND a1.assetclassify_parentid = #{assetClassifyParentid,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+</mapper>

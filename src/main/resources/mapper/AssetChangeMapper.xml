@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetChangeMapper">
+
+    <select id="listChangeAsset" parameterType="com.wsh.asset.comms.AssetChangeParams" resultType="Map">
+    SELECT
+      c1.change_id as changeId,
+      c1.change_number as changeNumber,
+      c1.change_assetid as changeAssetid,
+        a1.asset_number as assetChange,
+        a1.asset_name as assetName,
+        a1.asset_classifyid as assetClassifyid,
+          a2.assetclassify_name as assetClassifyName,
+        a1.asset_storagedate as assetStorageDate,
+        a1.asset_brand as assetBrand,
+        a1.asset_storageplace as assetStoragePlace,
+        a1.asset_productiondate as assetProductionDate,
+      c1.change_nowuserid as changeNowUserId,
+        u1.user_mobile as nowUserMobile,
+        u1.user_sex as nowUserSex,
+        u1.user_name as nowUserName,
+      c1.change_nowdepartmentid as changeNowDepartmentId,
+        d1.department_name as NowDepartmentName,
+      c1.change_nowstorageplace as changeNowStoragePlace,
+      c1.change_nowenabledate as changeNowEnableDate,
+      c1.change_operator as changeOperator,
+        u2.user_mobile as operatorMobile,
+        u2.user_sex as operatorSex,
+        u2.user_name as operatorName,
+        u2.user_department_id as operatorDepartmentId,
+          d2.department_name as operatorDepartmentName,
+      c1.change_remark as changeRemark,
+      c1.change_olduserid as changeOldUserId,
+        u3.user_mobile as oldUserMobile,
+        u3.user_sex as oldUserSex,
+        u3.user_name as oldUserName,
+        u3.user_department_id as oldUserDepartmentId,
+          d3.department_name as oldUserDepartmentName,
+      c1.change_olddepartmentid as changeOldDepartmentId,
+        d3.department_name as oldDepartmentName,
+      c1.change_oldstorageplace as changeOldStoragePlace,
+      c1.change_oldenabledate as changeOldEnableDate,
+      c1.change_status as changeStatus
+      FROM
+      `change` c1
+      LEFT JOIN `asset` a1 ON c1.change_assetid=a1.asset_id
+      LEFT JOIN assetclassify a2 ON a1.asset_classifyid=a2.assetclassify_id
+      LEFT JOIN `user` u1 ON c1.change_nowuserid=u1.user_id
+      LEFT JOIN `user` u2 ON c1.change_operator=u2.user_id
+      LEFT JOIN `user` u3 ON c1.change_olduserid=u3.user_id
+      LEFT JOIN department d1 ON c1.change_nowdepartmentid=d1.department_id
+      LEFT JOIN department d2 ON u2.user_department_id=d2.department_id
+      LEFT JOIN department d3 ON u3.user_department_id=d3.department_id
+      <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addChangeAsset" parameterType="com.wsh.asset.comms.AssetChangeParams">
+    INSERT INTO
+      `change`
+      (change_number,
+      change_assetid,
+      change_nowuserid,
+      change_nowdepartmentid,
+      change_nowstorageplace,
+      change_nowenabledate,
+      change_operator,
+      change_remark,
+      change_olduserid,
+      change_olddepartmentid,
+      change_oldstorageplace,
+      change_oldenabledate,
+      change_status)
+      VALUES
+      (#{changeNumber},
+      #{changeAssetid},
+      #{changeNowuserid},
+      #{changeNowdepartmentid},
+      #{changeNowstorageplace},
+      #{changeNowenabledate},
+      #{changeOperator},
+      #{changeRemark},
+      #{changeOlduserid},
+      #{changeOlddepartmentid},
+      #{changeOldstorageplace},
+      #{changeOldenabledate},
+      #{changeStatus})
+    </insert>
+
+    <update id="updateChangeAsset" parameterType="com.wsh.asset.comms.AssetChangeParams">
+      UPDATE `change`
+      <set>
+          <if test="changeNumber != null">change_number=#{changeNumber},</if>
+          <if test="changeAssetid != null">change_assetid=#{changeAssetid},</if>
+          <if test="changeNowuserid != null">change_nowuserid=#{changeNowuserid},</if>
+          <if test="changeNowdepartmentid != null">change_nowdepartmentid=#{changeNowdepartmentid},</if>
+          <if test="changeNowstorageplace != null">change_nowstorageplace=#{changeNowstorageplace},</if>
+          <if test="changeNowenabledate != null">change_nowenabledate=#{changeNowenabledate},</if>
+          <if test="changeOperator != null">change_operator=#{changeOperator},</if>
+          <if test="changeRemark != null">change_remark=#{changeRemark},</if>
+          <if test="changeOlduserid != null">change_olduserid=#{changeOlduserid},</if>
+          <if test="changeOlddepartmentid != null">changeOlddepartmentid=#{changeOlddepartmentid},</if>
+          <if test="changeOldstorageplace != null">changeOldstorageplace=#{changeOldstorageplace},</if>
+          <if test="changeOldenabledate != null">change_oldenabledate=#{changeOldenabledate},</if>
+          <if test="changeStatus != null">change_status=#{changeStatus}</if>
+      </set>
+        WHERE
+        <if test="changeId != null and changeId.length > 0">
+            change_id IN
+            <foreach collection="changeId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteChangeAsset">
+        DELETE FROM
+        `change`
+        WHERE
+        <if test="changeId !=null and changeId.length > 0">
+            change_id IN
+            <foreach collection="changeId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="changeId !=null and changeId.length > 0">
+            AND c1.change_id IN
+            <foreach collection="changeId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产id -->
+        <if test="changeAssetid != null">
+            AND c1.change_assetid = #{changeAssetid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 操作人 -->
+        <if test="changeOperator != null">
+            AND c1.change_operator = #{changeOperator,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 原使用人 -->
+        <if test="changeOlduserid != null">
+            AND c1.change_olduserid = #{changeOlduserid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 资产id -->
+        <if test="changeNowuserid != null">
+            AND c1.change_nowuserid = #{changeNowuserid,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>

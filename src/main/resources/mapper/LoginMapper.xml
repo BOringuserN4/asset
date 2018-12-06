@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.base.mapper.LoginMapper">
+
+    <select id="listUser" parameterType="com.wsh.base.param.UserParams" resultType="Map">
+        SELECT
+        u1.user_id as userId,
+        u1.user_token as userToken,
+        u1.user_login as userLogin,
+        u1.user_wechatid as userWechatid,
+        u1.user_password as userPassword,
+        u1.user_name as userName,
+        u1.user_sex as userSex,
+        u1.user_cardtype as userCardtype,
+        u1.user_cardid as userCardid,
+        u1.user_email as userEmail,
+        u1.user_mobile as userMobile,
+        u1.user_department_id as userDepartmentId,
+        d1.department_name as departmentName,
+        u1.user_role_id as userRoleId,
+        r1.role_name as roleName,
+        u1.user_creatuser as userCreatuser,
+        u2.user_name as creatUserName,
+        u1.user_creattime as userCreattime,
+        u1.user_remark as userRemark
+        FROM `user` u1
+        LEFT JOIN department d1 ON u1.user_department_id=d1.department_id
+        LEFT JOIN role r1 ON u1.user_role_id= r1.role_id
+        LEFT JOIN `user` u2 ON u1.user_creatuser=u2.user_name
+    <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addUser" parameterType="com.wsh.base.param.UserParams">
+      INSERT INTO
+        `user`
+        (user_token,
+        user_login,
+        user_wechatid,
+        user_password,
+        user_name,
+        user_sex,
+        user_cardtype,
+        user_cardid,
+        user_email,
+        user_mobile,
+        user_department_id,
+        user_role_id,
+        user_creatuser,
+        user_creattime,
+        user_remark)
+      VALUES
+        (#{userToken},
+        #{userLogin},
+        #{userWechatid},
+        #{userPassword},
+        #{userName},
+        #{userSex},
+        #{userCardtype},
+        #{userCardid},
+        #{userEmail},
+        #{userMobile},
+        #{userDepartmentId},
+        #{userRoleId},
+        #{userCreatuser},
+        #{userCreattime},
+        #{userRemark})
+    </insert>
+
+    <update id="updateUser" parameterType="com.wsh.base.param.UserParams">
+      UPDATE `user`
+        <set>
+            <if test="userToken != null">user_token=#{userToken},</if>
+            <if test="userLogin != null">user_login=#{userLogin},</if>
+            <if test="userWechatid != null">user_wechatid=#{userWechatid},</if>
+            <if test="userPassword != null">user_password=#{userPassword},</if>
+            <if test="userName != null">user_name=#{userName},</if>
+            <if test="userSex != null">user_sex=#{userSex},</if>
+            <if test="userCardtype != null">user_cardtype=#{userCardtype},</if>
+            <if test="userCardid != null">user_cardid=#{userCardid},</if>
+            <if test="userEmail != null">user_email=#{userEmail},</if>
+            <if test="userMobile != null">user_mobile=#{userMobile},</if>
+            <if test="userDepartmentId != null">user_department_id=#{userDepartmentId},</if>
+            <if test="userRoleId != null">user_role_id=#{userRoleId},</if>
+            <if test="userCreatuser != null">user_creatuser=#{userCreatuser},</if>
+            <if test="userCreattime != null">user_creattime=#{userCreattime},</if>
+            <if test="userRemark != null">user_remark=#{userRemark}</if>
+        </set>
+      WHERE
+        <if test="userId != null and userId.length > 0">
+            user_id IN
+            <foreach collection="userId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteUser">
+      DELETE FROM
+        `user`
+      WHERE
+        <if test="userId !=null and userId.length > 0">
+            user_id IN
+            <foreach collection="userId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="userId !=null and userId.length > 0">
+            AND u1.user_id IN
+            <foreach collection="userId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 用户名 -->
+        <if test="userName != null">
+            AND u1.user_name = #{userName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户工号 -->
+        <if test="userToken != null">
+            AND u1.user_token = #{userToken,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户微信 -->
+        <if test="userWechatid != null">
+            AND u1.user_ = #{userWechatid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户邮箱 -->
+        <if test="userEmail != null">
+            AND u1.user_email = #{userEmail,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户创建人 -->
+        <if test="userCreatuser != null">
+            AND u1.user_creatuser = #{userCreatuser,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户创建时间 -->
+        <if test="userCreattime != null">
+            AND u1.user_creattime = #{userCreattime,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 用户电话号码 -->
+        <if test="userMobile != null">
+            AND u1.user_mobile = #{userMobile,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+</mapper>

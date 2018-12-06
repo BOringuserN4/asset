@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetReceiveMapper">
+
+    <select id="listAssetReceive" parameterType="com.wsh.asset.comms.AssetReceiveParams" resultType="Map">
+      SELECT
+        r1.receive_id as receiveId,
+        r1.receive_number as receiveNumber,
+        r1.receive_assetid as receiveAssetid,
+          a1.asset_number as assetNumber,
+          a1.asset_name as assetName,
+          a1.asset_classifyid as assetClassifyid,
+            a2.assetclassify_name as assetClassifyName,
+          a1.asset_storagedate as assetStorageDate,
+          a1.asset_brand as assetBrand,
+          a1.asset_storageplace as assetStoragePlace,
+          a1.asset_productiondate as assetProductionDate,
+        r1.receive_userid as receiveUserId,
+          u1.user_mobile as receiveUserMobile,
+          u1.user_sex as receiveUserSex,
+          u1.user_name as receiveUserName,
+          u1.user_department_id as receiveUserDepartmentId,
+            d2.department_name as receiveUserDepartmentName,
+        r1.receive_departmentid as receiveDepartmentid,
+          d1.department_name as departmentName,
+        r1.receive_storageplace as receiveStorageplace,
+        r1.receive_enabledate as receiveEnabledate,
+        r1.receive_operator as receiveOperator,
+          u2.user_mobile as operatorMobile,
+          u2.user_sex as operatorSex,
+          u2.user_name as operatorName,
+          u2.user_department_id as operatorDepartmentId,
+            d3.department_name as operatorDepartmentName
+        FROM
+        receive r1
+        LEFT JOIN `asset` a1 ON r1.receive_assetid=a1.asset_id
+        LEFT JOIN assetclassify a2 ON a1.asset_classifyid=a2.assetclassify_id
+        LEFT JOIN `user` u1 ON r1.receive_userid=u1.user_id
+        LEFT JOIN `user` u2 ON r1.receive_operator=u2.user_id
+        LEFT JOIN department d1 ON r1.receive_departmentid=d1.department_id
+        LEFT JOIN department d2 ON u1.user_department_id=d2.department_id
+        LEFT JOIN department d3 ON u2.user_department_id=d3.department_id
+        <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addAssetReceive" parameterType="com.wsh.asset.comms.AssetReceiveParams">
+      INSERT INTO
+      receive
+      (receive_number,
+      receive_assetid,
+      receive_userid,
+      receive_departmentid,
+      receive_storageplace,
+      receive_enabledate,
+      receive_operator)
+      VALUES
+      (#{receiveNumber},
+      #{receiveAssetid},
+      #{receiveUserid},
+      #{receiveDepartmentid},
+      #{receiveStorageplace},
+      #{receiveEnabledate},
+      #{receiveOperator})
+    </insert>
+
+    <update id="updateAssetReceive" parameterType="com.wsh.asset.comms.AssetReceiveParams">
+      UPDATE receive
+        <set>
+            <if test="receiveNumber != null">receive_number=#{receiveNumber},</if>
+            <if test="receiveAssetid != null">receive_assetid=#{receiveAssetid},</if>
+            <if test="receiveUserid != null">receive_userid=#{receiveUserid},</if>
+            <if test="receiveDepartmentid != null">receive_departmentid=#{receiveDepartmentid},</if>
+            <if test="receiveStorageplace != null">receive_storageplace=#{receiveStorageplace},</if>
+            <if test="receiveEnabledate != null">receive_enabledate=#{receiveEnabledate},</if>
+            <if test="receiveOperator != null">receive_operator=#{receiveOperator}</if>
+        </set>
+        WHERE
+        <if test="receiveId != null and receiveId.length > 0">
+            receive_id IN
+            <foreach collection="receiveId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteAssetReceive">
+        DELETE FROM
+        `receive`
+        WHERE
+        <if test="receiveId !=null and receiveId.length > 0">
+            receive_id IN
+            <foreach collection="receiveId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!--<insert id="addWarnRule" parameterType="map">-->
+        <!--INSERT INTO early_warning_rule-->
+        <!--<trim prefix="(" suffix=")" suffixOverrides="," >-->
+            <!--<if test="username != null" >-->
+                <!--user_name,-->
+            <!--</if>-->
+            <!--<if test="title != null" >-->
+                <!--warn_name,-->
+            <!--</if>-->
+            <!--<if test="show != null" >-->
+                <!--warn_detail,-->
+            <!--</if>-->
+            <!--<if test="param != null" >-->
+                <!--warn_param,-->
+            <!--</if>-->
+        <!--</trim>-->
+        <!--VALUES-->
+        <!--<trim prefix="(" suffix=")" suffixOverrides=",">-->
+            <!--<if test="username != null" >-->
+                <!--#{username},-->
+            <!--</if>-->
+            <!--<if test="title != null" >-->
+                <!--#{title},-->
+            <!--</if>-->
+            <!--<if test="show != null" >-->
+                <!--#{show},-->
+            <!--</if>-->
+            <!--<if test="param != null" >-->
+                <!--#{param},-->
+            <!--</if>-->
+        <!--</trim>-->
+    <!--</insert>-->
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组 -->
+        <if test="receiveId !=null and receiveId.length > 0">
+            AND r1.receive_id IN
+            <foreach collection="receiveId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产入库name -->
+        <if test="receiveNumber != null">
+            AND r1.receive_number = #{receiveNumber,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+</mapper>

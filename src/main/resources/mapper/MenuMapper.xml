@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.base.mapper.MenuMapper">
+
+    <select id="listMenu" parameterType="com.wsh.base.param.RoleParams" resultType="Map">
+        SELECT
+        m1.menu_id as menuId,
+        m1.menu_name as menuName,
+        m1.menu_parentid as menuParentId,
+        m1.menu_icon as menuIcon,
+        m1.menu_url as menuUrl,
+        m1.menu_sort as menuSort,
+        m1.menu_remark as menuRemark
+        FROM menu m1
+        LEFT JOIN menu m2 ON m1.menu_parentid=m2.menu_id
+        <include refid="Base_where_List"/>
+    </select>
+
+    <select id="listMenuId" parameterType="com.wsh.base.param.UserParams" resultType="Map">
+        SELECT
+          t1.Trmr_role_id as  trmrRoleId,
+            m1.menu_id as menuId,
+            m1.menu_name as menuName,
+            m1.menu_parentid as menuParentId,
+            m1.menu_url as menuUrl,
+            m1.menu_icon as menuIcon,
+            m1.menu_sort as menuSort
+        FROM
+            `user` u1
+        LEFT JOIN trolemenurelation t1 ON t1.Trmr_role_id=u1.user_role_id
+        LEFT JOIN menu m1 ON t1.Trmr_menu_id= m1.menu_id
+        WHERE t1.Trmr_role_id=#{userRoleId}
+        ORDER BY m1.menu_sort
+    </select>
+
+    <insert id="addMenu" parameterType="com.wsh.asset.comms.AssetRetirementParams">
+      INSERT INTO
+        menu
+        (menu_name,
+        menu_parentid,
+        menu_icon,
+        menu_url,
+        menu_sort,
+        menu_remark)
+        VALUES
+        (#{menuName},
+        #{menuParentId},
+        #{menuIcon},
+        #{menuUrl},
+        #{menuSort},
+        #{menuRemark})
+    </insert>
+
+    <update id="updateMenu" parameterType="com.wsh.asset.comms.AssetRetirementParams">
+    UPDATE menu
+    <set>
+        <if test="menuName != null">menu_name=#{menuName},</if>
+        <if test="menuParentId != null">menu_parentid=#{menuParentId},</if>
+        <if test="menuIcon != null">menu_icon=#{menuIcon},</if>
+        <if test="menuUrl != null">menu_url=#{menuUrl},</if>
+        <if test="menuSort != null">menu_sort=#{menuSort},</if>
+        <if test="menuRemark != null">menu_remark=#{menuRemark}</if>
+    </set>
+    WHERE
+    <if test="menuId != null and menuId.length > 0">
+        menu_id IN
+        <foreach collection="menuId" item = "item" index = "index"
+                 open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </if>
+    </update>
+
+    <delete id="deleteMenu">
+        DELETE FROM
+        menu
+        WHERE
+        <if test="menuId !=null and menuId.length > 0">
+            menu_id IN
+            <foreach collection="menuId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="menuId !=null and menuId.length > 0">
+            AND m1.menu_id IN
+            <foreach collection="menuId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 菜单名 -->
+        <if test="menuName != null">
+            AND m1.menu_name=#{menuName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 菜单地址 -->
+        <if test="menuUrl != null">
+            AND m1.menu_url=#{menuUrl,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>

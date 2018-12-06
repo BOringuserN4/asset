@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetRetirementMapper">
+
+    <select id="listRetirementAsset" parameterType="com.wsh.asset.comms.AssetRetirementParams" resultType="Map">
+      SELECT
+        r3.retirement_id as retirementId,
+        r3.retirement_number as retirementNumber,
+        r3.retirement_assetid as retirementAssetid,
+          a1.asset_number as assetNumber,
+          a1.asset_name as assetName,
+          a1.asset_classifyid as assetClassifyid,
+            a2.assetclassify_name as assetClassifyName,
+          a1.asset_storagedate as assetStorageDate,
+          a1.asset_brand as assetBrand,
+          a1.asset_user_id as  assetUserId,
+            u4.user_name as assetUserName,
+          a1.asset_storageplace as assetStoragePlace,
+          a1.asset_productiondate as assetProductionDate,
+        r3.retirement_applicantuserid as retirementApplicantUserId,
+          u1.user_mobile as applicantUserMobile,
+          u1.user_sex as applicantUserSex,
+          u1.user_name as applicantUserName,
+          u1.user_department_id as applicantUserDepartmentId,
+            d2.department_name as applicantUserDepartmentName,
+        r3.retirement_operator as retirementOperator,
+          u2.user_mobile as operatorMobile,
+          u2.user_sex as operatorSex,
+          u2.user_name as operatorName,
+          u2.user_department_id as operatorDepartmentId,
+            d3.department_name as operatorDepartmentName,
+        r3.retirement_storageplace as retirementStorageplace,
+        r3.retirement_time as retirementTime,
+        r3.retirement_reason as retirementReason,
+        r3.retirement_remark as retirementRemark,
+        r3.retirement_olduserid as retirementOlduserid,
+          u3.user_mobile as oldUserMobile,
+          u3.user_sex as oldUserSex,
+          u3.user_name as oldUserName,
+          u3.user_department_id as oldUserDepartmentId,
+            d4.department_name as oldUserDepartmentName,
+        r3.retirement_olddepartmentid as retirementOlddepartmentid,
+          d1.department_name as oldDepartmentName,
+        r3.retirement_oldstorageplace as retirementOldstorageplace,
+        r3.retirement_oldenabledate as retirementOldenabledate
+      FROM
+        retirement r3
+      LEFT JOIN `asset` a1 ON r3.retirement_assetid=a1.asset_id
+      LEFT JOIN assetclassify a2 ON a1.asset_classifyid=a2.assetclassify_id
+      LEFT JOIN `user` u1 ON r3.retirement_applicantuserid=u1.user_id
+      LEFT JOIN `user` u2 ON r3.retirement_operator=u2.user_id
+      LEFT JOIN `user` u3 ON r3.retirement_olddepartmentid=u3.user_id
+      LEFT JOIN `user` u4 ON a1.asset_user_id=u4.user_id
+      LEFT JOIN department d1 ON r3.retirement_olddepartmentid=d1.department_id
+      LEFT JOIN department d2 ON u1.user_department_id=d2.department_id
+      LEFT JOIN department d3 ON u2.user_department_id=d3.department_id
+      LEFT JOIN department d4 ON u3.user_department_id=d4.department_id
+      <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addRetirementAsset" parameterType="com.wsh.asset.comms.AssetRetirementParams">
+      INSERT INTO
+        retirement
+        (retirement_number,
+        retirement_assetid,
+        retirement_applicantuserid,
+        retirement_operator,
+        retirement_storageplace,
+        retirement_time,
+        retirement_reason,
+        retirement_remark,
+        retirement_olduserid,
+        retirement_olddepartmentid,
+        retirement_oldstorageplace,
+        retirement_oldenabledate)
+        VALUES
+        (#{retirementNumber},
+        #{retirementAssetid},
+        #{retirementApplicantuserid},
+        #{retirementOperator},
+        #{retirementStorageplace},
+        #{retirementTime},
+        #{retirementReason},
+        #{retirementRemark},
+        #{retirementOlduserid},
+        #{retirementOlddepartmentid},
+        #{retirementOldstorageplace},
+        #{retirementOldenabledate})
+    </insert>
+
+    <update id="updateRetirementAsset" parameterType="com.wsh.asset.comms.AssetRetirementParams">
+      UPDATE retirement
+      <set>
+        <if test="retirementNumber != null">retirement_number=#{retirementNumber},</if>
+        <if test="retirementAssetid != null">retirement_assetid=#{retirementAssetid},</if>
+        <if test="retirementApplicantuserid != null">retirement_applicantuserid=#{retirementApplicantuserid},</if>
+        <if test="retirementOperator != null">retirement_operator=#{retirementOperator},</if>
+        <if test="retirementStorageplace != null">retirement_storageplace=#{retirementStorageplace},</if>
+        <if test="retirementTime != null">retirement_time=#{retirementTime},</if>
+        <if test="retirementReason != null">retirement_reason=#{retirementReason},</if>
+        <if test="retirementRemark != null">retirement_remark=#{retirementRemark},</if>
+        <if test="retirementOlduserid != null">retirement_olduserid=#{retirementOlduserid},</if>
+        <if test="retirementOlddepartmentid != null">retirement_olddepartmentid=#{retirementOlddepartmentid},</if>
+        <if test="retirementOldstorageplace != null">retirement_oldstorageplace=#{retirementOldstorageplace}</if>
+      </set>
+      WHERE
+      <if test="retirementId != null and retirementId.length > 0">
+        retirement_id IN
+        <foreach collection="retirementId" item = "item" index = "index"
+                 open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+      </if>
+    </update>
+
+  <delete id="deleteRetirementAsset">
+    DELETE FROM
+    retirement
+    WHERE
+    <if test="retirementId !=null and retirementId.length > 0">
+      retirement_id IN
+      <foreach collection="retirementId" item="item" index="index"
+               open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+  </delete>
+
+  <!-- 动态基本信息查询条件 -->
+  <sql id="Base_where_List">
+    <!-- id查询数组：： -->
+    <if test="retirementId !=null and retirementId.length > 0">
+      AND r3.retirement_id IN
+      <foreach collection="retirementId" item="item" index="index"
+               open="(" close=")" separator=",">
+        #{item}
+      </foreach>
+    </if>
+
+    <!-- 操作人id -->
+    <if test="retirementOperator != null">
+      AND r3.retirement_operator = #{retirementOperator,jdbcType=VARCHAR}
+    </if>
+
+    <!-- 资产报废时间 -->
+    <if test="retirementTime != null">
+      AND r3.retirement_time = #{retirementTime,jdbcType=VARCHAR}
+    </if>
+
+    <!-- 原使用人id -->
+    <if test="retirementOlduserid != null">
+      AND r3.retirement_olduserid = #{retirementOlduserid,jdbcType=VARCHAR}
+    </if>
+
+    <!-- 原使用部门id -->
+    <if test="retirementOlddepartmentid != null">
+      AND r3.retirement_olddepartmentid = #{retirementOlddepartmentid,jdbcType=VARCHAR}
+    </if>
+  </sql>
+</mapper>

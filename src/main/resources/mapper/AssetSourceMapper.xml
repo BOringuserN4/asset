@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetSourceMapper">
+
+    <select id="listAsset" parameterType="com.wsh.asset.comms.AssetSourceParams" resultType="Map">
+      SELECT
+        s1.assetsource_id as assetsourceId,
+        s1.assetsource_name as assetsourceName,
+        s1.assetsource_discribe as assetsourceDiscribe
+      FROM
+        assetsource s1
+      <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addAsset" parameterType="com.wsh.asset.comms.AssetSourceParams">
+      INSERT INTO
+      assetsource
+      (assetsource_name,
+      assetsource_discribe,
+      assetsource_remark)
+      VALUES
+      (#{assetsourceName},
+      #{assetsourceDiscribe},
+      {assetsourceRemark})
+    </insert>
+
+    <update id="updateAsset" parameterType="com.wsh.asset.comms.AssetSourceParams">
+      UPDATE assetsource
+        <set>
+            <if test="assetsourceName != null">assetsource_name=#{assetsourceName},</if>
+            <if test="assetsourceDiscribe != null">assetsource_discribe=#{assetsourceDiscribe},</if>
+            <if test="assetsourceRemark != null">assetsource_remark=#{assetsourceRemark}</if>
+        </set>
+        WHERE
+        <if test="assetsourceId != null and assetsourceId.length > 0">
+            assetsource_id IN
+            <foreach collection="assetsourceId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteAsset">
+      DELETE FROM
+        assetsource
+      WHERE
+        <if test="assetsourceId !=null and assetsourceId.length > 0">
+            assetsource_id IN
+            <foreach collection="assetsourceId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="assetsourceId !=null and assetsourceId.length > 0">
+            AND s1.assetsource_id IN
+            <foreach collection="assetsourceId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产来源name -->
+        <if test="assetsourceName != null">
+            AND s1.assetsource_name = #{assetsourceName,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+</mapper>

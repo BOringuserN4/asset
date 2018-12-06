@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetUserDirectionMappper">
+
+
+    <select id="listAssetUserDirection" parameterType="com.wsh.asset.comms.AssetUseDirectionParams" resultType="Map">
+        SELECT
+        a1.assetusedirection_id as assetusedirectionId,
+        a1.assetusedirection_name as assetusedirectionName,
+        a1.assetusedirection_discribe as assetusedirectionDiscribe,
+        a1.assetusedirection_remark as assetusedirectionRemark
+        FROM
+        assetusedirection a1
+        <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addAssetUserDirection" parameterType="com.wsh.asset.comms.AssetUseDirectionParams">
+       INSERT INTO
+        assetusedirection
+        (assetusedirection_name,
+        assetusedirection_discribe,
+        assetusedirection_remark)
+		VALUES
+		(#{assetusedirectionName},
+		#{assetusedirectionDiscribe},
+		#{assetusedirectionRemark})
+    </insert>
+
+    <update id="updateAssetUserDirection" parameterType="com.wsh.asset.comms.AssetUseDirectionParams">
+        UPDATE assetusedirection
+        <set>
+            <if test="assetusedirectionName != null">assetusedirection_name=#{assetusedirectionName},</if>
+            <if test="assetusedirectionDiscribe != null">assetusedirection_discribe=#{assetusedirectionDiscribe},</if>
+            <if test="assetusedirectionRemark != null">assetusedirection_remark=#{assetusedirectionRemark}</if>
+        </set>
+        WHERE
+        <if test="assetusedirectionId != null and assetusedirectionId.length > 0">
+            assetusedirection_id IN
+            <foreach collection="assetusedirectionId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+
+    <delete id="deleteAssetUserDirection">
+        DELETE FROM
+        assetusedirection
+        WHERE
+        <if test="assetusedirectionId !=null and assetusedirectionId.length > 0">
+            assetusedirection_id IN
+            <foreach collection="assetusedirectionId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="assetusedirectionId !=null and assetusedirectionId.length > 0">
+            AND a1.assetusedirection_id IN
+            <foreach collection="assetusedirectionId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 资产分类name -->
+        <if test="assetusedirectionName != null">
+            AND a1.assetusedirection_name=#{assetusedirectionName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 资产分类父类id：： -->
+        <if test="assetusedirectionDiscribe != null">
+            AND a1.assetusedirection_discribe=#{assetusedirectionDiscribe,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.base.mapper.RoleMapper">
+
+    <select id="listRole" parameterType="com.wsh.base.param.RoleParams" resultType="Map">
+        SELECT
+        r1.role_id as roleId,
+        r1.role_name as roleName,
+        r1.role_parentid as roleParentid,
+          r2.role_name as parentRoalName,
+        r1.role_discribe as roleDiscribe,
+        r1.role_remark as roleRemark
+        FROM
+        role r1
+        LEFT JOIN role r2 ON r1.role_parentid=r2.role_id
+    <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addRole" parameterType="com.wsh.base.param.RoleParams">
+      INSERT INTO
+        role
+        (role_name,
+        role_parentid,
+        role_discribe,
+        role_remark)
+      VALUES
+        (#{roleName},
+        #{roleParentid},
+        #{roleDiscribe},
+        #{roleRemark})
+    </insert>
+
+    <update id="updateRole" parameterType="com.wsh.base.param.RoleParams">
+      UPDATE role
+        <set>
+            <if test="roleName != null">role_name=#{roleName},</if>
+            <if test="roleParentid != null">role_parentid=#{roleParentid},</if>
+            <if test="roleDiscribe != null">role_discribe=#{roleDiscribe},</if>
+            <if test="roleRemark != null">role_remark=#{roleRemark}</if>
+        </set>
+      WHERE
+        <if test="roleId != null and roleId.length > 0">
+            role_id IN
+            <foreach collection="roleId" item = "item" index = "index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteRole" parameterType="com.wsh.base.param.RoleParams">
+      DELETE FROM
+        role
+      WHERE
+        <if test="roleId !=null and roleId.length > 0">
+            role_id IN
+            <foreach collection="roleId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="roleId !=null and roleId.length > 0">
+            AND r1.role_id IN
+            <foreach collection="roleId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 角色名 -->
+        <if test="roleName != null">
+            AND r1.role_name = #{roleName,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 角色父类id -->
+        <if test="roleParentid != null">
+            AND r1.role_parentid = #{roleParentid,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>

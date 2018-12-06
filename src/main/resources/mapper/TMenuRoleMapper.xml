@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.base.mapper.TMenuRoleMapper">
+
+    <select id="listtMenuRole" parameterType="com.wsh.base.param.MenuParams" resultType="Map">
+        SELECT
+          t1.Trmr_id as TemeId,
+          t1.Trmr_role_id as TemeRoleId,
+            r1.role_name as TrmrRoleName,
+          t1.Trmr_menu_id as TrmrMenuId,
+            m1.menu_name as TrmrMenuName,
+            m1.menu_url as TrmrMenuUrl,
+        FROM
+          trolemenurelation t1
+        LEFT JOIN role r1 ON t1.Trmr_role_id=r1.role_id
+        LEFT JOIN menu m1 ON t1.Trmr_menu_id=m1.menu_id
+    </select>
+
+    <insert id="addtMenuRole" parameterType="com.wsh.base.param.MenuParams">
+        INSERT INTO
+        trolemenurelation
+        (Trmr_role_id,
+        Trmr_menu_id)
+        VALUES
+        (#{TrmrRoleId},
+        #{TrmrMenu})
+    </insert>
+
+    <update id="updatetMenuRole" parameterType="com.wsh.base.param.MenuParams">
+        UPDATE trolemenurelation
+        <set>
+            <if test="TrmrRoleId != null">Trmr_role_id=#{TrmrRoleId},</if>
+            <if test="TrmrMenuId != null">Trmr_menu_id=#{TrmrMenuId}</if>
+        </set>
+        WHERE
+        <if test="TrmrId !=null and TrmrId.length > 0">
+            Trmr_id IN
+            <foreach collection="TrmrId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deletetMenuRole">
+    DELETE FROM
+        trolemenurelation
+    WHERE
+        Trmr_role_id = #{TrmrRoleId}
+    </delete>
+
+</mapper>

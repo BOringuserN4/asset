@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wsh.asset.mapper.AssetRefundMapper">
+
+    <select id="listRefundAsset" parameterType="com.wsh.asset.comms.AssetRefundParams" resultType="Map">
+        SELECT
+        r4.refund_id as refundId,
+        r4.refund_number as refundNumber,
+        r4.refund_assetid as refundAssetid,
+          a1.asset_number as assetNumber,
+          a1.asset_name as assetName,
+          a1.asset_classifyid as assetClassifyid,
+            c1.assetclassify_name as refundAssetClassifyName,
+          a1.asset_storagedate as assetStorageDate,
+          a1.asset_brand as assetBrand,
+          a1.asset_storageplace as assetStoragePlace,
+          a1.asset_productiondate as assetProductionDate,
+        r4.refund_storageplace as refundStoragePlace,
+        r4.refund_date as refundDate,
+        r4.refund_operator as refundOperator,
+          u1.user_mobile as operatorMobile,
+          u1.user_sex as operatorSex,
+          u1.user_name as operatorName,
+          u1.user_department_id as operatorDepartmentId,
+            d2.department_name as operatorDepartmentName,
+        r4.refund_remark as refundRemark,
+        r4.refund_olduserid as refundOlduserid,
+          u2.user_mobile as oldUserMobile,
+          u2.user_sex as oldUserSex,
+          u2.user_name as oldUserName,
+          u2.user_department_id as oldUserDepartmentId,
+            d3.department_name as oldUserDepartmentName,
+        r4.refund_olddepartmentid as refundOlddepartmentid,
+          d1.department_name as DepartmentName,
+        r4.refund_oldstorageplace as refundOldstorageplace,
+        r4.refund_oldenabledate as refundOldenabledate
+        FROM
+        refund r4
+        LEFT JOIN `asset` a1 ON r4.refund_assetid=a1.asset_id
+        LEFT JOIN `user` u1 ON r4.refund_operator=u1.user_id
+        LEFT JOIN `user` u2 ON r4.refund_olduserid=u2.user_id
+        LEFT JOIN assetclassify c1 ON a1.asset_classifyid=c1.assetclassify_id
+        LEFT JOIN department d1 ON r4.refund_olddepartmentid=d1.department_id
+        LEFT JOIN department d2 ON u1.user_department_id=d2.department_id
+        LEFT JOIN department d3 ON u2.user_department_id=d3.department_id
+        <include refid="Base_where_List"/>
+    </select>
+
+    <insert id="addRefundAsset" parameterType="com.wsh.asset.comms.AssetRefundParams">
+      INSERT into
+        refund
+        (refund_number,
+        refund_assetid,
+        refund_storageplace,
+        refund_date,
+        refund_operator,
+        refund_remark,
+        refund_olduserid,
+        refund_olddepartmentid,
+        refund_oldstorageplace,
+        refund_oldenabledate)
+        VALUES
+        ( #{refundNumber},
+        #{refundAssetid},
+        #{refundStorageplace},
+        #{refundDate},
+        #{refundOperator},
+        #{refundRemark},
+        #{refundOlduserid},
+        #{refundOlddepartmentid},
+        #{refundOldstorageplace},
+        #{refundOldenabledate})
+    </insert>
+
+   <update id="updateRefundAsset" parameterType="com.wsh.asset.comms.AssetRefundParams" >
+      UPDATE refund
+        <set>
+            <if test="refundNumber != null">refund_number=#{refundNumber},</if>
+            <if test="refundAssetid != null">refund_assetid=#{refundAssetid},</if>
+            <if test="refundStorageplace != null">refund_storageplace=#{refundStorageplace},</if>
+            <if test="refundDate != null">refund_date=#{refundDate},</if>
+            <if test="refundOperator != null">refund_operator=#{refundOperator},</if>
+            <if test="refundRemark != null">refund_remark=#{refundRemark},</if>
+            <if test="refundOlduserid != null">refund_olduserid=#{refundOlduserid},</if>
+            <if test="refundOlddepartmentid != null">refund_olddepartmentid=#{refundOlddepartmentid},</if>
+            <if test="refundOldstorageplace != null">refund_oldstorageplace=#{refundOldstorageplace},</if>
+            <if test="refundOldenabledate != null">refund_oldenabledate=#{refundOldenabledate}</if>
+        </set>
+        WHERE
+       <if test="refundId != null and refundId.length > 0">
+           refund_id IN
+           <foreach collection="refundId" item = "item" index = "index"
+                    open="(" close=")" separator=",">
+               #{item}
+           </foreach>
+       </if>
+    </update>
+
+    <delete id="deleteRefundAsset">
+        DELETE FROM
+        refund
+        WHERE
+        <if test="refundId !=null and refundId.length > 0">
+            refund_id IN
+            <foreach collection="refundId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 动态基本信息查询条件 -->
+    <sql id="Base_where_List">
+        <!-- id查询数组：： -->
+        <if test="refundId !=null and refundId.length > 0">
+            AND r4.refund_id IN
+            <foreach collection="refundId" item="item" index="index"
+                     open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 操作人id -->
+        <if test="refundOperator != null">
+            AND r4.refund_operator = #{refundOperator,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 原使用人id -->
+        <if test="refundOlduserid != null">
+            AND r4.refund_olduserid = #{refundOlduserid,jdbcType=VARCHAR}
+        </if>
+
+        <!-- 原使用地 -->
+        <if test="refundOldstorageplace != null">
+            AND r4.refund_oldstorageplace = #{refundOldstorageplace,jdbcType=VARCHAR}
+        </if>
+
+    </sql>
+
+</mapper>
